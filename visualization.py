@@ -23,16 +23,22 @@ with col_left:
     base_col, interest_col = st.columns(2)
 
     with base_col:
-        st.markdown("### Base Scenarios")
-        st.button("Eskom TDP")
-        st.button("NECOM Expected")
-        st.button("Delayed Roll-out")
+        st.markdown("<h3 style='text-align: center;'>Base Scenarios</h3>", unsafe_allow_html=True)
+
+        st.button("Eskom TDP", use_container_width=True)
+        st.button("NECOM Expected", use_container_width=True)
+        st.button("Delayed Roll-out", use_container_width=True)
 
     with interest_col:
-        st.markdown("### Scenarios of Interest")
-        st.button("Scenario A")
-        st.button("Scenario B")
-        st.button("Documentation")
+        st.markdown(
+            "<h3 style='text-align: center;'>Scenarios of Interest</h3>",
+            unsafe_allow_html=True,
+        )
+
+
+        st.button("Scenario A", use_container_width=True)
+        st.button("Scenario B", use_container_width=True)
+        st.button("Documentation", use_container_width=True)
 
     # Build-out section
     st.markdown(
@@ -117,8 +123,10 @@ with col_right:
 
         background = Image.alpha_composite(background, overlay_fullsize)
 
-
     st.image(background, caption="Load Shedding Forecast by Year", width=WIDTH)
+
+
+    year = st.selectbox("Select Year", options=["2025", "2026", "2027", "2028", "2029", "2030"])
 
 
     # =======================
