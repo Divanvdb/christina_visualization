@@ -126,7 +126,7 @@ with col_right:
     st.image(background, caption="Load Shedding Forecast by Year", width=WIDTH)
 
 
-    year = st.selectbox("Select Year", options=["2025", "2026", "2027", "2028", "2029", "2030"])
+    year = st.selectbox("Select Year to display in detail:", options=["2025", "2026", "2027", "2028", "2029", "2030"])
 
 
     # =======================
@@ -166,4 +166,4 @@ with col_right:
     # Legend
     # =======================
     legend = Image.open("images/NECOM Key.drawio(3).png")
-    st.image(legend, caption="EAF vs Month Heatmap",width=WIDTH)
+    st.image(legend, caption="Legend for the EAF vs Month Heatmap",width=WIDTH)
