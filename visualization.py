@@ -1,19 +1,75 @@
 import streamlit as st
 from PIL import Image
 
+st.markdown(
+    """
+    <style>
+    :root {
+        --primary-control-color: #d3d3d3; /* Light grey */
+    }
+
+    /* Main app background */
+    .stApp {
+        background-color: black !important;
+        color: white !important;
+    }
+
+    /* Style buttons */
+    .stButton > button {
+        background-color: var(--primary-control-color) !important;
+        color: black !important;
+        border: none;
+    }
+    .stButton > button span {
+        color: black !important;
+    }
+    .stButton > button:hover {
+        background-color: #bbbbbb !important;
+        color: black !important;
+    }
+    .stButton > button:hover span {
+        color: black !important;
+    }
+
+    /* Style selectboxes (dropdowns) */
+    div[data-baseweb="select"] > div {
+        background-color: var(--primary-control-color) !important;
+        color: black !important;
+        transition: background-color 0.2s ease;
+    }
+    div[data-baseweb="select"] svg {
+        fill: black !important;
+    }
+    div[data-baseweb="select"] span {
+        color: black !important;
+    }
+
+    /* Hover effect for dropdowns */
+    div[data-baseweb="select"] > div:hover {
+        background-color: #bbbbbb !important; /* Slightly darker grey */
+        color: black !important;
+    }
+    div[data-baseweb="select"] > div:hover span {
+        color: black !important;
+    }
+    div[data-baseweb="select"] > div:hover svg {
+        fill: black !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Page config
 st.set_page_config(page_title="Likelihood of South African Load Shedding", layout="wide")
-
-WIDTH = 1000
-DEMAND = int(WIDTH * 1.25)
 
 # Main Title
 st.markdown("<h1 style='text-align: center;'>Likelihood of South African Load Shedding</h1>", unsafe_allow_html=True)
 st.markdown("---")
 
 # Two main columns
-col_left, col_right = st.columns([1.2, 1])
+col_left, col_right = st.columns([4, 2.1])
 
 # =======================
 # LEFT COLUMN
@@ -46,7 +102,7 @@ with col_left:
         unsafe_allow_html=True,
     )
     demand = Image.open("images/NECOM base demand.drawio(1).png")
-    st.image(demand, caption="Annual System Peak Demand (GW)", width=DEMAND)
+    st.image(demand, caption="Annual System Peak Demand (GW)", use_container_width=True)
 
     years = list(range(2025, 2031))
 
@@ -100,7 +156,7 @@ with col_right:
     background = background.convert("RGBA")
 
     for i in range(6):
-        print(i)
+
         image_25 = Image.open("images/Bx Dxx Oxx 20xx.png")
 
 
@@ -112,8 +168,6 @@ with col_right:
 
         overlay_fullsize = Image.new("RGBA", background.size, (0, 0, 0, 0))
 
-        print(int(background.size[0] * 3 / 4))
-
         paste_pos = (
             (background.size[0] - new_size[0]) // 2 - int(background.size[0] / 2 * 3 / 4) + size * i,
             (background.size[1] - new_size[1]) // 2 - 8,
@@ -123,7 +177,7 @@ with col_right:
 
         background = Image.alpha_composite(background, overlay_fullsize)
 
-    st.image(background, caption="Load Shedding Forecast by Year", width=WIDTH)
+    st.image(background, caption="Load Shedding Forecast by Year", use_container_width=True)
 
 
     year = st.selectbox("Select Year to display in detail:", options=["2025", "2026", "2027", "2028", "2029", "2030"])
@@ -159,11 +213,11 @@ with col_right:
 
 
     combined = Image.alpha_composite(background, overlay_fullsize)
-    st.image(combined, caption="EAF vs Month Heatmap", width=WIDTH)
+    st.image(combined, caption="EAF vs Month Heatmap", use_container_width=True)
 
 
     # =======================
     # Legend
     # =======================
     legend = Image.open("images/NECOM Key.drawio(3).png")
-    st.image(legend, caption="Legend for the EAF vs Month Heatmap",width=WIDTH)
+    st.image(legend, caption="Legend for the EAF vs Month Heatmap",use_container_width=True)
