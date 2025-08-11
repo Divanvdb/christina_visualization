@@ -154,33 +154,63 @@ with col_left:
         2027: [-0.5, 0, 0.5, 1, 1.5, 2],
         2028: [-0.5, 0, 0.5, 1, 1.5, 2, 2.5],
         2029: [-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5],
-        2030: [-1, -0.5,0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+        2030: [-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+    }
+
+    label_to_code = {
+        -1.0: "D01",
+        -0.5: "D02",
+        0.0: "D03",
+        0.5: "D04",
+        1.0: "D05",
+        1.5: "D06",
+        2.0: "D07",
+        2.5: "D08",
+        3.0: "D09",
+        3.5: "D10",
+        4.0: "D11",
     }
 
     demand_cols = st.columns(len(years))
-    demand_growth = {}
+    demand_growth_labels = {}  # selected numeric labels
+    demand_growth_codes = {}  # mapped Dxx codes
 
     for i, year in enumerate(years):
         options = yearly_demand_options[year]
-        default_index = (
-            options.index(0) if 0 in options else 0
-        )  # default select 0 or first option
-        demand_growth[year] = demand_cols[i].selectbox(
+        default_index = options.index(0) if 0 in options else 0
+        selected_label = demand_cols[i].selectbox(
             f"{year}", options, index=default_index, key=f"demand_{year}"
         )
+        demand_growth_labels[year] = selected_label
+        demand_growth_codes[year] = label_to_code[selected_label]
 
     st.markdown("### OCGT max annual runtime (%):")
 
     # Create columns for OCGT runtime, one column per year
+    label_to_ocgt = {
+        6: "06",
+        10: "10",
+        15: "15",
+        30: "30",
+    }
+
+    runtime_options = list(label_to_ocgt.keys())
+
     runtime_cols = st.columns(len(years))
-    ocgt_runtime = {}
+    ocgt_runtime_labels = {}  # selected hours
+    ocgt_runtime_codes = {}  # mapped codes
+
     for i, year in enumerate(years):
-
-        ocgt_runtime[year] = runtime_cols[i].selectbox(
-            f"{year}", runtime_options, index=0, key=f"runtime_{year}"
+        selected_label = runtime_cols[i].selectbox(
+            f"{year}",
+            runtime_options,
+            index=0,  # default first option
+            key=f"runtime_{year}",
         )
+        ocgt_runtime_labels[year] = selected_label
+        ocgt_runtime_codes[year] = label_to_ocgt[selected_label]
 
-    all_drop_downs(build_out=trajectory_option, demand=demand_growth, ocgt=ocgt_runtime)
+    all_drop_downs(build_out=trajectory_option, demand=demand_growth_codes, ocgt=ocgt_runtime_codes)
 
 # =======================
 # RIGHT COLUMN
