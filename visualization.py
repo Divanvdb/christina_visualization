@@ -210,7 +210,10 @@ with col_left:
         ocgt_runtime_labels[year] = selected_label
         ocgt_runtime_codes[year] = label_to_ocgt[selected_label]
 
-    all_drop_downs(build_out=trajectory_option, demand=demand_growth_codes, ocgt=ocgt_runtime_codes)
+    filenames = all_drop_downs(trajectory_option, demand_growth_codes, ocgt_runtime_codes)
+
+    for name in filenames:
+        print(name)
 
 # =======================
 # RIGHT COLUMN

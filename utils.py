@@ -18,7 +18,7 @@ def scenario_B():
 def documentation():
     print("Documentation")
 
-def all_drop_downs(build_out: str, demand: Dict, ocgt: Dict):
+def all_drop_downs(build_out: str, demand: Dict[int, str], ocgt: Dict[int, str]):
     option_values = {
         "Eskom TDP 2025": "B1",
         "NECOM Expected": "B2",
@@ -26,6 +26,14 @@ def all_drop_downs(build_out: str, demand: Dict, ocgt: Dict):
     }
     linked_value = option_values[build_out]
 
-    print(f"Build out trajectory {linked_value}")
-    print(f"Demand trajectory {demand}")
-    print(f"Ocgt trajectory {ocgt}")
+    # Generate filenames
+    filenames = []
+    for year in sorted(demand.keys()):
+        d_code = demand[year]
+        o_code = ocgt[year]
+        filenames.append(f"{linked_value} {d_code} O{o_code} {year}")
+
+    return filenames
+
+
+
