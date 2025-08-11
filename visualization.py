@@ -1,6 +1,9 @@
 import streamlit as st
 from PIL import Image
 
+from utils import *
+
+
 st.markdown(
     """
     <style>
@@ -55,6 +58,10 @@ st.markdown(
     div[data-baseweb="select"] > div:hover svg {
         fill: black !important;
     }
+    
+    img {
+        border-radius: 0 !important;
+    }
     </style>
     """,
     unsafe_allow_html=True
@@ -74,16 +81,28 @@ col_left, col_right = st.columns([4, 2.1])
 # =======================
 # LEFT COLUMN
 # =======================
+for btn_key in [
+    "eskom_tdp_clicked", "necom_expected_clicked", "delayed_rollout_clicked",
+    "scenario_a_clicked", "scenario_b_clicked", "documentation_clicked"
+]:
+    if btn_key not in st.session_state:
+        st.session_state[btn_key] = False
+
 with col_left:
     # Create two subcolumns inside col_left
     base_col, interest_col = st.columns(2)
 
     with base_col:
         st.markdown("<h3 style='text-align: center;'>Base Scenarios</h3>", unsafe_allow_html=True)
+        clicked_base = None
 
-        st.button("Eskom TDP", use_container_width=True)
-        st.button("NECOM Expected", use_container_width=True)
-        st.button("Delayed Roll-out", use_container_width=True)
+        if st.button("Eskom TDP", use_container_width=True):
+            eskom_tdp_preset()
+        if st.button("NECOM Expected", use_container_width=True):
+            necom_expected_preset()
+        if st.button("Delayed Roll-out", use_container_width=True):
+            delayed_roll_out_preset()
+
 
     with interest_col:
         st.markdown(
@@ -91,33 +110,63 @@ with col_left:
             unsafe_allow_html=True,
         )
 
+        clicked_interest = None
 
-        st.button("Scenario A", use_container_width=True)
-        st.button("Scenario B", use_container_width=True)
-        st.button("Documentation", use_container_width=True)
+        if st.button("Scenario A", use_container_width=True):
+            scenario_A()
+        if st.button("Scenario B", use_container_width=True):
+            scenario_B()
+        if st.button("Documentation", use_container_width=True):
+            documentation()
+
 
     # Build-out section
-    st.markdown(
-        "<h3 style='text-align: center;'>Build-out trajectories: Eskom TDP 2025</h3>",
-        unsafe_allow_html=True,
-    )
+    label_col, dropdown_col = st.columns([1, 2])
+
+    with label_col:
+        st.markdown(
+            "<h3 style='margin: 0;'>Build-out Trajectory:</h3>", unsafe_allow_html=True
+        )
+
+    with dropdown_col:
+        trajectory_option = st.selectbox(
+            "Select Trajectory",
+            options=["Eskom TDP 2025",
+                     "NECOM Expected",
+                     "Delayed roll-out"],
+            index=0,
+            key="build_out_trajectory",
+        )
+
     demand = Image.open("images/NECOM base demand.drawio(1).png")
     st.image(demand, caption="Annual System Peak Demand (GW)", use_container_width=True)
 
     years = list(range(2025, 2031))
 
-    demand_options = [-1.0, -0.5, 0.0, 0.5, 1.0, 1.5, 2.0, 2.5]
-    runtime_options = [0, 5, 6, 10, 15, 20, 25]
+    runtime_options = [6, 10, 15, 30]
 
     st.markdown("### Demand growth adjustment (GW):")
 
     # Create columns for demand growth, one column per year
+    yearly_demand_options = {
+        2025: [0, 0.5],
+        2026: [-0.5, 0, 0.5, 1],
+        2027: [-0.5, 0, 0.5, 1, 1.5, 2],
+        2028: [-0.5, 0, 0.5, 1, 1.5, 2, 2.5],
+        2029: [-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5],
+        2030: [-1, -0.5,0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4],
+    }
+
     demand_cols = st.columns(len(years))
     demand_growth = {}
+
     for i, year in enumerate(years):
-        default_index = demand_options.index(0.0)  # default 0.0 for all
+        options = yearly_demand_options[year]
+        default_index = (
+            options.index(0) if 0 in options else 0
+        )  # default select 0 or first option
         demand_growth[year] = demand_cols[i].selectbox(
-            f"{year}", demand_options, index=default_index, key=f"demand_{year}"
+            f"{year}", options, index=default_index, key=f"demand_{year}"
         )
 
     st.markdown("### OCGT max annual runtime (%):")
@@ -126,24 +175,12 @@ with col_left:
     runtime_cols = st.columns(len(years))
     ocgt_runtime = {}
     for i, year in enumerate(years):
-        # set default based on your original values
-        if year == 2025:
-            default_index = runtime_options.index(6)
-        elif year in [2026, 2027]:
-            default_index = runtime_options.index(10)
-        else:
-            default_index = runtime_options.index(15)
 
         ocgt_runtime[year] = runtime_cols[i].selectbox(
-            f"{year}", runtime_options, index=default_index, key=f"runtime_{year}"
+            f"{year}", runtime_options, index=0, key=f"runtime_{year}"
         )
 
-    # # Optional: display selected values
-    # st.write("### Selected Demand Growth:")
-    # st.write(demand_growth)
-    #
-    # st.write("### Selected OCGT Runtime:")
-    # st.write(ocgt_runtime)
+    all_drop_downs(build_out=trajectory_option, demand=demand_growth, ocgt=ocgt_runtime)
 
 # =======================
 # RIGHT COLUMN
@@ -221,3 +258,4 @@ with col_right:
     # =======================
     legend = Image.open("images/NECOM Key.drawio(3).png")
     st.image(legend, caption="Legend for the EAF vs Month Heatmap",use_container_width=True)
+
