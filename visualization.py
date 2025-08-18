@@ -3,6 +3,10 @@ from PIL import Image
 
 from utils import *
 
+import os
+
+BASE_DIR = os.path.dirname(__file__)  # directory of your script
+
 
 st.markdown(
     """
@@ -241,16 +245,12 @@ with col_left:
 
     filenames = all_drop_downs(trajectory_option, demand_growth_codes, ocgt_runtime_codes)
 
-    for name in filenames:
-        print(name)
-
 
     # =======================
     # Legend
     # =======================
     legend = Image.open("images/NECOM Key.drawio(3).png")
     st.image(legend, caption="Legend for the EAF vs Month Heatmap",use_container_width=True)
-
 
 
 # =======================
@@ -265,7 +265,10 @@ with col_right:
 
     for i, name in enumerate(filenames):
 
-        image_25 = Image.open(f"figures/{name}")
+
+        image_path = os.path.join(BASE_DIR, "figures", name)
+
+        image_25 = Image.open(image_path)
 
         image_25 = image_25.convert("RGBA")
 
@@ -299,10 +302,16 @@ with col_right:
     year_index = years.index(year)
     overlay_filename = filenames[year_index]
 
+    image_path = os.path.join(BASE_DIR, "images", f"NECOM chart background mid {year}.drawio.png")
     background = Image.open(
-        "images/NECOM chart background mid 2025.drawio.png"
+        image_path
     ).convert("RGBA")
-    overlay = Image.open(f"figures/{overlay_filename}")
+
+
+
+    image_path = os.path.join(BASE_DIR, "figures", overlay_filename)
+    print(image_path)
+    overlay = Image.open(image_path)
 
     background = background.convert("RGBA")
     overlay = overlay.convert("RGBA")
