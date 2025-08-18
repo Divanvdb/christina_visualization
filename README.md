@@ -6,5 +6,7 @@ Hier is die app: [Visualization](https://eaf-visualizations.streamlit.app/)
 
 TODO:
 
-- Bulidout trajectory changed to dropdown
-- Corners on pictures: Sharp edges
+- Dropdown color white text
+- Maak Peak diagram kleiner
+- 50:50 ration columns
+- Center in column

@@ -47,6 +47,14 @@ st.markdown(
         color: black !important;
     }
 
+    /* Explicitly style dropdown labels */
+    label[data-baseweb="select"] {
+        color: white !important;
+    }
+    .stSelectbox label {
+        color: white !important;
+    }
+
     /* Hover effect for dropdowns */
     div[data-baseweb="select"] > div:hover {
         background-color: #bbbbbb !important; /* Slightly darker grey */
@@ -58,14 +66,15 @@ st.markdown(
     div[data-baseweb="select"] > div:hover svg {
         fill: black !important;
     }
-    
+
     img {
         border-radius: 0 !important;
     }
     </style>
     """,
-    unsafe_allow_html=True
+    unsafe_allow_html=True,
 )
+
 
 
 # Page config
@@ -76,7 +85,7 @@ st.markdown("<h1 style='text-align: center;'>Likelihood of South African Load Sh
 st.markdown("---")
 
 # Two main columns
-col_left, col_right = st.columns([4, 2.1])
+col_left, col_right = st.columns([1, 1])
 
 # =======================
 # LEFT COLUMN
@@ -92,17 +101,23 @@ with col_left:
     # Create two subcolumns inside col_left
     base_col, interest_col = st.columns(2)
 
+    default_build_out = 0
+    default_demand = {2025: 0.5, 2026: 1, 2027: 1.5, 2028: 0, 2029: 2, 2030: -0.5}
+    default_runtime = {2025: 6, 2026: 10, 2027: 15, 2028: 30, 2029: 6, 2030: 10}
+
+    # =======================
+    # BASE AND INTEREST COLUMNS
+    # =======================
+
     with base_col:
         st.markdown("<h3 style='text-align: center;'>Base Scenarios</h3>", unsafe_allow_html=True)
-        clicked_base = None
 
         if st.button("Eskom TDP", use_container_width=True):
-            eskom_tdp_preset()
+            default_build_out, default_demand, default_runtime = eskom_tdp_preset()
         if st.button("NECOM Expected", use_container_width=True):
-            necom_expected_preset()
+            default_build_out, default_demand, default_runtime = necom_expected_preset()
         if st.button("Delayed Roll-out", use_container_width=True):
-            delayed_roll_out_preset()
-
+            default_build_out, default_demand, default_runtime = delayed_roll_out_preset()
 
     with interest_col:
         st.markdown(
@@ -110,12 +125,10 @@ with col_left:
             unsafe_allow_html=True,
         )
 
-        clicked_interest = None
-
         if st.button("Scenario A", use_container_width=True):
-            scenario_A()
+            default_build_out, default_demand, default_runtime = scenario_A()
         if st.button("Scenario B", use_container_width=True):
-            scenario_B()
+            default_build_out, default_demand, default_runtime = scenario_B()
         if st.button("Documentation", use_container_width=True):
             documentation()
 
@@ -134,7 +147,7 @@ with col_left:
             options=["Eskom TDP 2025",
                      "NECOM Expected",
                      "Delayed roll-out"],
-            index=0,
+            index=default_build_out,
             key="build_out_trajectory",
         )
 
@@ -142,6 +155,7 @@ with col_left:
     st.image(demand, caption="Annual System Peak Demand (GW)", use_container_width=True)
 
     years = list(range(2025, 2031))
+    print(default_build_out, default_demand, default_runtime)
 
     runtime_options = [6, 10, 15, 30]
 
@@ -171,15 +185,18 @@ with col_left:
         4.0: "D11",
     }
 
-    demand_cols = st.columns(len(years))
-    demand_growth_labels = {}  # selected numeric labels
-    demand_growth_codes = {}  # mapped Dxx codes
+    for year in years:
+        st.session_state[f"demand_{year}"] = default_demand.get(year, 0)
 
+    demand_cols = st.columns(len(years))
+    demand_growth_labels, demand_growth_codes = {}, {}
     for i, year in enumerate(years):
         options = yearly_demand_options[year]
-        default_index = options.index(0) if 0 in options else 0
         selected_label = demand_cols[i].selectbox(
-            f"{year}", options, index=default_index, key=f"demand_{year}"
+            f"{year}",
+            options,
+            index=options.index(st.session_state[f"demand_{year}"]),
+            key=f"demand_{year}",
         )
         demand_growth_labels[year] = selected_label
         demand_growth_codes[year] = label_to_code[selected_label]
@@ -196,6 +213,9 @@ with col_left:
 
     runtime_options = list(label_to_ocgt.keys())
 
+    for year in years:
+        st.session_state[f"runtime_{year}"] = default_runtime.get(year, 6)
+
     runtime_cols = st.columns(len(years))
     ocgt_runtime_labels = {}  # selected hours
     ocgt_runtime_codes = {}  # mapped codes
@@ -204,7 +224,7 @@ with col_left:
         selected_label = runtime_cols[i].selectbox(
             f"{year}",
             runtime_options,
-            index=0,  # default first option
+            index=runtime_options.index(st.session_state[f"runtime_{year}"]),
             key=f"runtime_{year}",
         )
         ocgt_runtime_labels[year] = selected_label
@@ -214,6 +234,15 @@ with col_left:
 
     for name in filenames:
         print(name)
+
+
+    # =======================
+    # Legend
+    # =======================
+    legend = Image.open("images/NECOM Key.drawio(3).png")
+    st.image(legend, caption="Legend for the EAF vs Month Heatmap",use_container_width=True)
+
+
 
 # =======================
 # RIGHT COLUMN
@@ -285,10 +314,4 @@ with col_right:
     combined = Image.alpha_composite(background, overlay_fullsize)
     st.image(combined, caption="EAF vs Month Heatmap", use_container_width=True)
 
-
-    # =======================
-    # Legend
-    # =======================
-    legend = Image.open("images/NECOM Key.drawio(3).png")
-    st.image(legend, caption="Legend for the EAF vs Month Heatmap",use_container_width=True)
 
