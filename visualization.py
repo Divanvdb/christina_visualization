@@ -75,8 +75,6 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-
-
 # Page config
 st.set_page_config(page_title="Likelihood of South African Load Shedding", layout="wide")
 
@@ -109,15 +107,20 @@ with col_left:
     # BASE AND INTEREST COLUMNS
     # =======================
 
+    flag = False
+
     with base_col:
         st.markdown("<h3 style='text-align: center;'>Base Scenarios</h3>", unsafe_allow_html=True)
 
         if st.button("Eskom TDP", use_container_width=True):
             default_build_out, default_demand, default_runtime = eskom_tdp_preset()
+            flag = True
         if st.button("NECOM Expected", use_container_width=True):
             default_build_out, default_demand, default_runtime = necom_expected_preset()
+            flag = True
         if st.button("Delayed Roll-out", use_container_width=True):
             default_build_out, default_demand, default_runtime = delayed_roll_out_preset()
+            flag = True
 
     with interest_col:
         st.markdown(
@@ -127,11 +130,12 @@ with col_left:
 
         if st.button("Scenario A", use_container_width=True):
             default_build_out, default_demand, default_runtime = scenario_A()
+            flag = True
         if st.button("Scenario B", use_container_width=True):
             default_build_out, default_demand, default_runtime = scenario_B()
+            flag = True
         if st.button("Documentation", use_container_width=True):
             documentation()
-
 
     # Build-out section
     label_col, dropdown_col = st.columns([1, 2])
@@ -186,7 +190,15 @@ with col_left:
     }
 
     for year in years:
-        st.session_state[f"demand_{year}"] = default_demand.get(year, 0)
+        if f"demand_{year}" not in st.session_state:
+            st.session_state[f"demand_{year}"] = default_demand.get(year, 0)
+
+        if f"runtime_{year}" not in st.session_state:
+            st.session_state[f"runtime_{year}"] = default_runtime.get(year, 6)
+
+        if flag:
+            st.session_state[f"demand_{year}"] = default_demand.get(year, 0)
+            st.session_state[f"runtime_{year}"] = default_runtime.get(year, 6)
 
     demand_cols = st.columns(len(years))
     demand_growth_labels, demand_growth_codes = {}, {}
@@ -212,9 +224,6 @@ with col_left:
     }
 
     runtime_options = list(label_to_ocgt.keys())
-
-    for year in years:
-        st.session_state[f"runtime_{year}"] = default_runtime.get(year, 6)
 
     runtime_cols = st.columns(len(years))
     ocgt_runtime_labels = {}  # selected hours
