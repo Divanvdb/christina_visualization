@@ -263,10 +263,9 @@ with col_right:
     background = Image.open("images/NECOM chart background top.drawio.png")
     background = background.convert("RGBA")
 
-    for i in range(6):
+    for i, name in enumerate(filenames):
 
-        image_25 = Image.open("images/Bx Dxx Oxx 20xx.png")
-
+        image_25 = Image.open(f"figures/{name}")
 
         image_25 = image_25.convert("RGBA")
 
@@ -277,7 +276,9 @@ with col_right:
         overlay_fullsize = Image.new("RGBA", background.size, (0, 0, 0, 0))
 
         paste_pos = (
-            (background.size[0] - new_size[0]) // 2 - int(background.size[0] / 2 * 3 / 4) + size * i,
+            (background.size[0] - new_size[0]) // 2
+            - int(background.size[0] / 2 * 3 / 4)
+            + size * i,
             (background.size[1] - new_size[1]) // 2 - 8,
         )
 
@@ -285,19 +286,23 @@ with col_right:
 
         background = Image.alpha_composite(background, overlay_fullsize)
 
-    st.image(background, caption="Load Shedding Forecast by Year", use_container_width=True)
+    st.image(
+        background, caption="Load Shedding Forecast by Year", use_container_width=True
+    )
 
-
-    year = st.selectbox("Select Year to display in detail:", options=["2025", "2026", "2027", "2028", "2029", "2030"])
-
+    years = ["2025", "2026", "2027", "2028", "2029", "2030"]
+    year = st.selectbox("Select Year to display in detail:", options=years)
 
     # =======================
     # EAF Detailed View
     # =======================
+    year_index = years.index(year)
+    overlay_filename = filenames[year_index]
+
     background = Image.open(
         "images/NECOM chart background mid 2025.drawio.png"
     ).convert("RGBA")
-    overlay = Image.open("images/Bx Dxx Oxx 20xx.png")
+    overlay = Image.open(f"figures/{overlay_filename}")
 
     background = background.convert("RGBA")
     overlay = overlay.convert("RGBA")
@@ -321,6 +326,5 @@ with col_right:
 
 
     combined = Image.alpha_composite(background, overlay_fullsize)
-    st.image(combined, caption="EAF vs Month Heatmap", use_container_width=True)
-
+    st.image(combined, caption=f"EAF vs Month Heatmap ({year})", use_container_width=True)
 

@@ -63,7 +63,7 @@ def all_drop_downs(build_out: str, demand: Dict[int, str], ocgt: Dict[int, str])
     for year in sorted(demand.keys()):
         d_code = demand[year]
         o_code = ocgt[year]
-        filenames.append(f"{linked_value} {d_code} O{o_code} {year}")
+        filenames.append(f"{linked_value} {d_code} O{o_code} {year}.png")
 
     return filenames
 
